@@ -2,7 +2,7 @@
   			<div id="wps-sidebar">
 					
 					<h1><a href="<?php echo site_url('') ?>" title="<?php echo __('Home page', 'free01') ?>"><?php echo bloginfo( 'name' ); ?> </a> </h1>
-					
+					<?php echo kc_ml_list_languages(); ?>
 					<!-- Main menu	-->
 					<div class="wpscls-menu-main">
 						<?php wp_nav_menu(array('menu' => __('Main menu', 'free01'), 'theme_location' => __('Main menu', 'free01'), 'depth' => 0, 'walker' => new extended_walker)); ?>
