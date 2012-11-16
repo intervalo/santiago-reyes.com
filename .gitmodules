@@ -1,3 +1,6 @@
 [submodule "wp-content/plugins/kcml"]
 	path = wp-content/plugins/kcml
 	url = https://github.com/8manos/kc-multilingual.git
+[submodule "wp-content/plugins/kc-settings"]
+	path = wp-content/plugins/kc-settings
+	url = https://github.com/8manos/kc-settings.git
