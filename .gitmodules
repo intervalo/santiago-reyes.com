@@ -1,0 +1,3 @@
+[submodule "wp-content/plugins/kcml"]
+	path = wp-content/plugins/kcml
+	url = https://github.com/8manos/kc-multilingual.git
