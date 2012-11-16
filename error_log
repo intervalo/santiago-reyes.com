@@ -350,3 +350,6 @@
 [25-Oct-2012 21:51:36] PHP Warning:  Invalid argument supplied for foreach() in /home4/interva8/public_html/santiagoreyes/wp-content/plugins/collapsing-categories/collapscat.php on line 107
 [25-Oct-2012 21:51:38] PHP Warning:  Invalid argument supplied for foreach() in /home4/interva8/public_html/santiagoreyes/wp-content/plugins/collapsing-categories/collapscat.php on line 107
 [25-Oct-2012 21:51:41] PHP Warning:  Invalid argument supplied for foreach() in /home4/interva8/public_html/santiagoreyes/wp-content/plugins/collapsing-categories/collapscat.php on line 107
+[16-Nov-2012 02:22:29] PHP Fatal error:  Class 'kcSettings' not found in /home4/interva8/public_html/santiagoreyes/wp-content/plugins/kcml/kc-multilingual.php on line 25
+[16-Nov-2012 02:22:38] PHP Fatal error:  Class 'kcSettings' not found in /home4/interva8/public_html/santiagoreyes/wp-content/plugins/kcml/kc-multilingual.php on line 25
+[16-Nov-2012 02:23:13] PHP Fatal error:  Class 'kcSettings' not found in /home4/interva8/public_html/santiagoreyes/wp-content/plugins/kcml/kc-multilingual.php on line 25
