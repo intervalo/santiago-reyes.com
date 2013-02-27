@@ -55,7 +55,7 @@ body { background: white; color: #000; font-size: 13px; margin-top: 0; font-fami
 	#wps-site-wrapper {}
 		#wps-site-inner { }
 			
-			h1 { font-size: 13px; font-weight: bold; margin-bottom: 20px; line-height: 20px;}
+			h1 { font-size: 13px; font-weight: bold; margin-bottom: 10px; line-height: 20px;}
 			h2 { font-size: 13px; font-weight: bold; margin-bottom: 20px; line-height: 20px;}
 			h4 { font-size: 13px; font-weight: bold; line-height: 20px;}
 			h5 { font-size: 13px;}
