@@ -99,7 +99,7 @@ body { background: white; color: #000; font-size: 13px; margin-top: 0; font-fami
 			.wpscls-copyright a:hover {}
 			/* KCML */
 .kc-ml-languages {
-list-style-type: none;
+list-style-type;
 margin:5;
 padding:5;
 }
