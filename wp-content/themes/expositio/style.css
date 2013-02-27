@@ -60,7 +60,7 @@ body { background: white; color: #000; font-size: 13px; margin-top: 0; font-fami
 			h4 { font-size: 13px; font-weight: bold; line-height: 20px;}
 			h5 { font-size: 13px;}
 		
-			#wps-sidebar { position: fixed; top: -35px; left: 40px; width: 220px; padding: 60px 14px 6px 14px; z-index: 10; background: white; line-height: 20px; height: 100%; }
+			#wps-sidebar { position: fixed; top: -35px; left: 40px; width: 220px; padding: 60px 14px 6px 14px; z-index: 10; background: white; line-height: 18px; height: 100%; }
 				#wps-sidebar h1 { padding: 0 6px;}
 				#wps-sidebar h2 { padding: 0 6px;}
 				#wps-sidebar h4 { padding: 0 6px;}
