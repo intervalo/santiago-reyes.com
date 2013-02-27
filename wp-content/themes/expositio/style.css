@@ -12,7 +12,7 @@ Copyright: (c) 2011 Wpshower
 /* CSS Document */
 
 /* Global reset of paddings and margins for all HTML elements */
-* { margin:0; padding: 0;}
+* { margin:15; padding: 15;}
 /* Correction: margin/padding reset caused too small select boxes. */
 option { padding-left: 0 0.4em; } 
 select { padding: 1px; }
