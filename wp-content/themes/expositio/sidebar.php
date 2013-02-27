@@ -64,7 +64,7 @@
 						?>
 						<?php echo sprintf(__('&copy; %s'), $strYear) ?>
 						<br />
-						<?php echo sprintf(__('Theme by %s'), '<a class="m" href="'.'http://wpshower.com/'.'"> WPShower </a>') ?>
+						<?php echo sprintf(__('Theme by %s'), '<a class="wpscls-logowps" href="'.'http://wpshower.com/'.'"> WPShower </a>') ?>
 					</div>
 					<!-- /Copyright	-->
 					
