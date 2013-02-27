@@ -16,7 +16,7 @@
 						$arrArgs = array(
 							'type'                     => 'post',
 							'child_of'                 => 0,
-							'orderby'                  => 'date',
+							'orderby'                  => 'ID',
 							'order'                    => 'ASC',
 							'taxonomy'                 => 'category',
 							'pad_counts'               => false 
