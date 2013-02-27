@@ -9,7 +9,5 @@ if (defined('UPPSITE_AJAX')) {
     ob_end_clean(); 
     print json_encode(array($single));
 } else {
-        $url = site_url();
-    $id = get_the_ID();
-    wp_redirect($url.'/#post/'.$id);
+    include(dirname(__FILE__) . "/router.php");
 }

@@ -24,4 +24,22 @@ function jetpack_widgets_configuration_load() {
 	exit;
 }
 
+/**
+ * Loads file for front-end widget styles.
+ */
+function jetpack_widgets_styles() {
+	wp_enqueue_style( 'jetpack-widgets', plugins_url( 'widgets/widgets.css', __FILE__ ), array(), '20121003' );
+}
+add_action( 'wp_enqueue_scripts', 'jetpack_widgets_styles' );
+
+/**
+ * Add the "(Jetpack)" suffix to the widget names
+ */
+function jetpack_widgets_add_suffix( $widget_name ) {
+    return sprintf( __( '%s (Jetpack)', 'jetpack' ), $widget_name );
+}
+add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
+
+
+
 jetpack_load_widgets();
