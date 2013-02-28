@@ -16,7 +16,7 @@
 						$arrArgs = array(
 							'type'                     => 'post',
 							'child_of'                 => 0,
-							'orderby'                  => 'count',
+							'orderby'                  => 'date',
 							'order'                    => 'DESC',
 							'taxonomy'                 => 'category',
 							'pad_counts'               => false 
@@ -31,7 +31,7 @@
 								'cat'                    	=> $row_cate->cat_ID,
 								'posts_per_page'           => 0,
 								'post_type'              	=> '',
-								'orderby'                 => 'count',
+								'orderby'                 => 'date',
 								'order'                   => 'DESC'
 							);
 							
