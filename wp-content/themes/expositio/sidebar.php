@@ -59,7 +59,7 @@
 					<!-- Copyright	-->
 					<div class="wpscls-copyright">
 						
-						<?php echo sprintf(__('Tema de %s'), '<a class="wpscls-logowps" href="'.'http://wpshower.com/'.'"> WPShower </a>') ?>
+						<?php echo sprintf(__('Plantilla de %s'), '<a class="wpscls-logowps" href="'.'http://wpshower.com/'.'"> WPShower </a>') ?>
 					</div>
 					<!-- /Copyright	-->
 					
