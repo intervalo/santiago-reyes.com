@@ -17,7 +17,7 @@
 							'type'                     => 'post',
 							'child_of'                 => 0,
 							'orderby'                  => 'count',
-							'order'                    => 'DESC',
+							'order'                    => 'ASC',
 							'taxonomy'                 => 'category',
 							'pad_counts'               => false 
 						);
@@ -32,7 +32,7 @@
 								'posts_per_page'           => 0,
 								'post_type'              	=> '',
 								'orderby'                 => 'count',
-								'order'                   => 'DESC'
+								'order'                   => 'ASC'
 							);
 							
 							$the_query = new WP_Query( $arrArgs );
