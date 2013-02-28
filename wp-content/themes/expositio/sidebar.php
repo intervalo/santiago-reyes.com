@@ -35,7 +35,7 @@
 								'order'                   => 'DESC'
 								<li id="categories">
 	<h2><?php _e('Posts by Category'); ?></h2>
-	<form action="<?php bloginfo('url'); ?>/" method="get">
+	<form action="<?php bloginfo('santiago-reyes.com'); ?>/" method="get">
 	<div>
 <?php
 $select = wp_dropdown_categories('show_option_none=Select category&show_count=1&orderby=name&echo=0');
