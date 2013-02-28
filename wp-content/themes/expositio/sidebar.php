@@ -58,13 +58,8 @@
 					
 					<!-- Copyright	-->
 					<div class="wpscls-copyright">
-						<?php
-							$numStartYear	=	2011;
-							$strYear	=	date('Y') > $numStartYear ? $numStartYear.' - '.date('Y') : $numStartYear;
-						?>
-						<?php echo sprintf(__('&copy; %s'), $strYear) ?>
-						<br />
-						<?php echo sprintf(__('Theme by %s'), '<a class="wpscls-logowps" href="'.'http://wpshower.com/'.'"> WPShower </a>') ?>
+						
+						<?php echo sprintf(__('Tema de %s'), '<a class="wpscls-logowps" href="'.'http://wpshower.com/'.'"> WPShower </a>') ?>
 					</div>
 					<!-- /Copyright	-->
 					
