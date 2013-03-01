@@ -100,7 +100,7 @@ body { background: white; color: #000; font-size: 13px; margin-top: 0; font-fami
 			/* KCML */
 .kc-ml-languages {
 list-style-type: none;
-border-bottom:20px solid #FFFFFF;
+border-bottom:10px solid #FFFFFF;
 margin:0;
 padding:5px;
 }
