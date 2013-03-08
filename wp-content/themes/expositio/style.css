@@ -108,4 +108,4 @@ padding:5px;
 .kc-ml-languages li {
 display: inline;
 }
-.kc-ml-languages li:first-child:after { content: "   |   "; }
+.kc-ml-languages li:first-child:after { content: " | "; }
