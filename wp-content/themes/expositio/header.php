@@ -68,6 +68,7 @@
 			$strLinkColor	=	get_option('free01_link_color', '#000');
 			$strBgColor	=	get_option('free01_bg_color', '#fff');
 		?>
+		<script src="<?php bloginfo('stylesheet_directory'); ?>/js/modernizr.js"></script>
 		<style media="all" type="text/css">
 			body, h1, h2, h3, h4, h5 { font-size: <?php echo $numTmpFontSize.'px' ?>;}
 			body { font-family: <?php echo $strFontFamily ?>;}
@@ -77,7 +78,7 @@
 		
 		</style>
 	</head>
-	<body <?php body_class(); ?>>
+	<body <?php body_class('no-js'); ?>>
 		<!--[if gt IE 8]> <div id="wps-site-wrapper" class="wpscls-ie wpscls-ie9"> <![endif]-->
 		<!--[if IE 8]> <div id="wps-site-wrapper" class="wpscls-ie wpscls-ie8"> <![endif]-->
 		<!--[if IE 7]> <div id="wps-site-wrapper" class="wpscls-ie wpscls-ie7"> <![endif]-->

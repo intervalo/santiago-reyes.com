@@ -1,5 +1,7 @@
 cosntruccion
 
+error_log
+
 .htaccess
 wp-*.php
 xmlrpc.php
