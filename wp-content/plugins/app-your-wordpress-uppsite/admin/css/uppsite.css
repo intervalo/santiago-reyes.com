@@ -58,6 +58,11 @@
 
 #wpbody-content { padding-bottom: 37px; }
 
+#uppsite-wrapper .updated {
+    clear: left;
+    margin-top: 50px;
+}
+
 /* Changes for dashboard footer */
 body[class*='version-3-'][class*='uppsite'] #wpcontent { margin-left: 146px; }
 

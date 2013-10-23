@@ -51,8 +51,9 @@ class Jetpack_Photon {
 		if ( ! function_exists( 'jetpack_photon_url' ) )
 			return;
 
-		// Images in post content
+		// Images in post content and galleries
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
+		add_filter( 'get_post_gallery', array( __CLASS__, 'filter_the_content' ), 999999 );
 
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
@@ -135,7 +136,7 @@ class Jetpack_Photon {
 		$images = Jetpack_Photon::parse_images_from_html( $content );
 
 		if ( ! empty( $images ) ) {
-			global $content_width;
+			$content_width = Jetpack::get_content_width();
 
 			$image_sizes = self::image_sizes();
 			$upload_dir = wp_upload_dir();
@@ -309,6 +310,10 @@ class Jetpack_Photon {
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
 					}
+				} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
+					$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
+
+					$content = str_replace( $tag, $new_tag, $content );
 				}
 			}
 		}
@@ -439,7 +444,7 @@ class Jetpack_Photon {
 		) );
 
 		// Bail if scheme isn't http or port is set that isn't port 80
-		if ( 'http' != $url_info['scheme'] || ! in_array( $url_info['port'], array( 80, null ) ) )
+		if ( ( 'http' != $url_info['scheme'] || ! in_array( $url_info['port'], array( 80, null ) ) ) && apply_filters( 'jetpack_photon_reject_https', true ) )
 			return false;
 
 		// Bail if no host is found

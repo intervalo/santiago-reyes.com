@@ -13,11 +13,11 @@ function uppsite_change_page(data) {
     }
     window.location.href = href;
 }
-function uppsite_admin_get_images(page_obj){
+function uppsite_admin_get_images(page_obj) {
     jQuery.get(ajaxurl,
         { // Params
             action: 'uppsite_get_info',
-            uppsite_request: 'bizimages',
+            uppsite_req: 'bizimages',
             page: page_obj.page
         },
         function( response ) { // Callback function
@@ -33,11 +33,27 @@ function uppsite_admin_get_images(page_obj){
         }
     );
 }
+
+function uppsite_refresh_images() {
+    jQuery.get('?uppsite_images_rescan=1',function() {
+        var iframe = document.getElementById('uppsiteFrame').contentWindow;
+        pm({
+            target: iframe,
+            type: "images_reload",
+            data: null
+        });
+    });
+}
+
 pm.bind("uppsite_remote", uppsite_change_page);
 pm.bind("uppsite_get_images", uppsite_admin_get_images);
+pm.bind("uppsite_refresh_images", uppsite_refresh_images);
 pm.bind("uppsite_iframe_height", function (data) {
     jQuery('#uppsiteFrame').css('height', data);
 });
 pm.bind("uppsite_scroll_top", function (data) {
     jQuery("body").animate({scrollTop:0}, 400);
+});
+pm.bind("uppsite_scroll_to", function (data) {
+    jQuery("body").animate({scrollTop:data}, 400);
 });

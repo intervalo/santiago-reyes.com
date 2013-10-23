@@ -4,15 +4,15 @@ define('UPPSITE_DEFAULT_ANALYTICS_KEY', "BDF2JD6ZXWX69Y9BZQBC");
 define('MYSITEAPP_WEBAPP_DEFAULT_BIZ_COLOR', '#717880');
 define('MYSITEAPP_WEBAPP_DEFAULT_CONTENT_COLOR', '#1d5ba0');
 define('MYSITEAPP_WEBAPP_DEFAULT_NAVBAR_COLOR', '#f2f2f2');
-if (isset($_REQUEST['uppsite_request'])) {
-        define('UPPSITE_AJAX', sanitize_text_field($_REQUEST['uppsite_request']));
+if (isset($_REQUEST['uppsite_req'])) {
+        define('UPPSITE_AJAX', sanitize_text_field($_REQUEST['uppsite_req']));
     remove_filter('template_redirect', 'redirect_canonical');
 }
 function uppsite_get_webapp_dir_uri() {
     if ( function_exists( 'wpcom_vip_noncdn_uri' ) ) {
         return trailingslashit( wpcom_vip_noncdn_uri( dirname( __FILE__ ) ) );
     } else {
-        return get_template_directory_uri();
+        return uppsite_get_template_directory_uri();
     }
 }
 function uppsite_get_appid() {
@@ -435,6 +435,10 @@ add_filter('tag_template', 'uppsite_get_webapp_page');
 add_filter('archive_template', 'uppsite_get_webapp_page');
 add_filter('login_redirect', 'uppsite_redirect_login', 10, 3);
 add_filter('comment_post_redirect', 'uppsite_redirect_comment', 10, 3);
+add_action( 'wp', 'uppsite_webapp_filters_removal' , 99999);
+function uppsite_webapp_filters_removal() {
+    remove_all_filters('comments_template');
+}
 function uppsite_fix_youtube($content) {
         if (!preg_match_all("/<iframe[^>]*src=\"[^\"]*youtube.com[^\"]*\"[^>]*>[^<]*<\/iframe>/x", $content, $matches)) {
         return $content;

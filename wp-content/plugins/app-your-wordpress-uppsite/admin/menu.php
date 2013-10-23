@@ -25,10 +25,6 @@ class UppSiteAdmin {
             'slug' => 'stores'
         ),
         array(
-            'name' => 'Analytics',
-            'slug' => 'analytics'
-        ),
-        array(
             'name' => 'Support',
             'slug' => 'support'
         ),

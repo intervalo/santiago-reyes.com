@@ -3,12 +3,12 @@
  Plugin Name: UppSite - Go Mobile&#0153;
  Plugin URI: http://www.uppsite.com/features/
  Description: UppSite is the best way to make your site mobile. Here is how you get started: 1) Activate your plugin by clicking the "Activate" link to the left of this description, and 2) Configure your mobile apps by visiting the Mobile tab under Settings (tab will show only after plugin is activated). Go Mobile&#0153; <strong>**** DISABLING THIS PLUGIN MAY PREVENT YOUR USERS FROM ACCESSING YOUR MOBILE APPS! ****</strong>
- Author: UppSite
- Version: 5.1.1
+ Author: MySiteApp Ltd.
+ Version: 5.2
  Author URI: https://www.uppsite.com
  */
 if (!defined('MYSITEAPP_AGENT')):
-define('MYSITEAPP_PLUGIN_VERSION', '5.1.1');
+define('MYSITEAPP_PLUGIN_VERSION', '5.2');
 define('MYSITEAPP_WEBAPP_PREF_THEME', 'uppsite_theme_select');
 define('MYSITEAPP_WEBAPP_PREF_TIME', 'uppsite_theme_time');
 define('MYSITEAPP_WEBAPP_PREVIEW', 'uppsite_preview');
@@ -19,9 +19,9 @@ define('MYSITEAPP_OPTIONS_BUSINESS', 'uppsite_biz');
 define('MYSITEAPP_AGENT','MySiteApp');
 require_once( dirname(__FILE__) . '/env_helper.php' );
 define('MYSITEAPP_TEMPLATE_ROOT', mysiteapp_get_template_root() );
-define('MYSITEAPP_TEMPLATE_APP', MYSITEAPP_TEMPLATE_ROOT.'/mysiteapp');
-define('MYSITEAPP_TEMPLATE_WEBAPP', MYSITEAPP_TEMPLATE_ROOT.'/webapp');
-define('MYSITEAPP_TEMPLATE_LANDING', MYSITEAPP_TEMPLATE_ROOT.'/landing');
+define('MYSITEAPP_TEMPLATE_APP', MYSITEAPP_TEMPLATE_ROOT . DIRECTORY_SEPARATOR . 'mysiteapp');
+define('MYSITEAPP_TEMPLATE_WEBAPP', MYSITEAPP_TEMPLATE_ROOT . DIRECTORY_SEPARATOR . 'webapp');
+define('MYSITEAPP_TEMPLATE_LANDING', MYSITEAPP_TEMPLATE_ROOT . DIRECTORY_SEPARATOR . 'landing');
 define('MYSITEAPP_WEBSERVICES_URL', 'http://api.uppsite.com');
 define('UPPSITE_REMOTE_URL', defined('UPPSITE_BASE_SITE') ? constant('UPPSITE_BASE_SITE') : 'https://www.uppsite.com');
 define('MYSITEAPP_PUSHSERVICE', MYSITEAPP_WEBSERVICES_URL.'/push/notification.php');
@@ -29,7 +29,6 @@ define('MYSITEAPP_APP_NATIVE_URL', MYSITEAPP_WEBSERVICES_URL.'/getapplink.php?v=
 define('MYSITEAPP_AUTOKEY_URL', MYSITEAPP_WEBSERVICES_URL.'/autokeys.php');
 define('MYSITEAPP_PREFERENCES_URL', MYSITEAPP_WEBSERVICES_URL . '/preferences.php?ver=' . MYSITEAPP_PLUGIN_VERSION);
 define('MYSITEAPP_WEBAPP_RESOURCES', 'http://static.uppsite.com/v3/webapp');
-define('MYSITEAPP_FACEBOOK_COMMENTS_URL','http://graph.facebook.com/comments/?ids=');
 define('MYSITEAPP_ONE_DAY', 86400); 
 define('MYSITEAPP_BUFFER_POSTS_COUNT', 5);
 define('MYSITEAPP_HOMEPAGE_POSTS', 5);
@@ -77,9 +76,9 @@ function mysiteapp_should_show_webapp() {
                 return false;
     }
     $options = get_option(MYSITEAPP_OPTIONS_OPTS);
-    return (isset($options['activated']) && $options['activated'] && isset($options['webapp_mode']) &&
+    $canShow = (isset($options['activated']) && $options['activated'] && isset($options['webapp_mode']) &&
         ($options['webapp_mode'] == "all" || $options['webapp_mode'] == "webapp_only")) || mysiteapp_should_preview_webapp();
-}
+    return $canShow && ( MySiteAppPlugin::get_facebook_ios_version() < 6.2 ); }
 function uppsite_get_native_app($type = "url", $os = null) {
     if (is_null($os)) {
         $os = MySiteAppPlugin::detect_specific_os();
@@ -199,6 +198,14 @@ class MySiteAppPlugin {
         }
         return array_key_exists("HTTP_USER_AGENT", $_SERVER) && (bool)preg_match('/('.implode('|', $osUAs).')/i', $_SERVER['HTTP_USER_AGENT']);
     }
+    static public function get_facebook_ios_version() {
+        if ( function_exists( 'vary_cache_on_function' ) ) {
+            vary_cache_on_function(
+                'return ( array_key_exists("HTTP_USER_AGENT", $_SERVER) && preg_match("#FBAV/((\d+)\.(\d+))(?:\.(\d+))?#", $_SERVER["HTTP_USER_AGENT"], $results) > 0 ) ? floatval($results[1]) : false;'
+            );
+        }
+        return ( array_key_exists("HTTP_USER_AGENT", $_SERVER) && preg_match('#FBAV/((\d+)\.(\d+))(?:\.(\d+))?#', $_SERVER['HTTP_USER_AGENT'], $results) > 0 ) ? floatval($results[1]) : 0;
+    }
     function detect_user_agent() {
         if ($this->_is_agent()) {
                         $this->is_app = true;
@@ -250,14 +257,14 @@ foreach (MySiteAppPlugin::$_mobile_ua_os as $osName => $osUA) {
     MySiteAppPlugin::$_mobile_ua = array_merge(MySiteAppPlugin::$_mobile_ua, $osUA);
 }
 require_once( dirname(__FILE__) . '/includes/business.php' );
-require_once( dirname(__FILE__) . '/includes/fbcomments_page.inc.php' );
+require_once( dirname(__FILE__) . '/includes/comments_helper.php' );
 global $msap;
 $msap = new MySiteAppPlugin();
 function mysiteapp_filter_template($newValue) {
     global $msap;
     return $msap->has_custom_theme() ? $msap->new_template : $newValue;
 }
-add_filter('option_template', 'mysiteapp_filter_template'); add_filter('option_stylesheet', 'mysiteapp_filter_template'); 
+add_filter('pre_option_template', 'mysiteapp_filter_template', 10000); add_filter('option_template', 'mysiteapp_filter_template'); add_filter('pre_option_stylesheet', 'mysiteapp_filter_template', 10000); add_filter('option_stylesheet', 'mysiteapp_filter_template'); 
 function uppsite_extract_src_url($html) {
     if (strpos($html, "http") === 0) {
                 return $html;
@@ -364,6 +371,39 @@ function mysiteapp_extract_thumbnail(&$content = null) {
     }
     return $thumb_url;
 }
+function mysiteapp_get_post_featured_image( $post_id = null ) {
+    $image = null;
+        $imageAlgos = uppsite_get_image_algos();
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::NATIVE_FUNC) &&
+        function_exists('has_post_thumbnail') && has_post_thumbnail()) {
+                $image = get_the_post_thumbnail( $post_id, 'full' );
+        if (empty($image)) {
+            $image = get_the_post_thumbnail( $post_id, 'large' );
+        }
+    }
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::THE_ATTACHED_IMAGE) &&
+        empty($image) && function_exists('the_attached_image')) {
+                $temp_thumb = the_attached_image('img_size=full&echo=false');
+        if (!empty($temp_thumb)) {
+            $image = $temp_thumb;
+        }
+    }
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::GET_THE_IMAGE) &&
+        empty($image) && function_exists('get_the_image')) {
+                $temp_thumb = get_the_image(array('size' => 'full', 'echo' => false, 'link_to_post' => false));
+        if (!empty($temp_thumb)) {
+            $image = $temp_thumb;
+        }
+    }
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::CUSTOM_FIELD) &&
+        empty($image) && !is_null($imageAlgos['extra'])) {
+                $image = get_post_meta(get_the_ID(), $imageAlgos['extra'], true);
+    }
+    if (!empty($image)) {
+        $image = uppsite_extract_src_url($image);
+    }
+    return $image;
+}
 function mysiteapp_sign_message($message){
     $options = get_option(MYSITEAPP_OPTIONS_DATA);
     $str = $options['uppsite_secret'].$message;
@@ -435,8 +475,8 @@ function mysiteapp_get_posts_layout() {
     return "";
 }
 function mysiteapp_set_webapp_theme() {
-    $templateType = isset($_REQUEST['msa_theme_select']) ? esc_html(stripslashes($_REQUEST['msa_theme_select'])) : "";
-    $templateSaveForever = isset($_REQUEST['msa_theme_save_forever']) ? esc_html(stripslashes($_REQUEST['msa_theme_save_forever'])) : "";
+    $templateType = isset($_REQUEST['msa_theme_sel']) ? esc_html(stripslashes($_REQUEST['msa_theme_sel'])) : "";
+    $templateSaveForever = isset($_REQUEST['msa_theme_remember']) ? esc_html(stripslashes($_REQUEST['msa_theme_remember'])) : "";
     if (empty($templateType)) {
         return;
     }
@@ -445,7 +485,7 @@ function mysiteapp_set_webapp_theme() {
     }
     $cookieTime = $templateSaveForever ? 60*60*24*7 : 60*60;     setcookie(MYSITEAPP_WEBAPP_PREF_THEME, $templateType, time() + $cookieTime, COOKIEPATH, COOKIE_DOMAIN);
         setcookie(MYSITEAPP_WEBAPP_PREF_TIME, $cookieTime, time() + 60*60*24*30, COOKIEPATH, COOKIE_DOMAIN);
-        $cleanUrl = remove_query_arg(array("msa_theme_select","msa_theme_save_forever"));
+        $cleanUrl = remove_query_arg(array("msa_theme_sel","msa_theme_remember"));
     wp_safe_redirect($cleanUrl);
     exit;
 }
@@ -485,6 +525,9 @@ function uppsite_remote_activation() {
         return;
     }
     $decoded = json_decode(base64_decode($query_var), true);
+    if (is_null($decoded) && function_exists('imap_base64')) {
+                $decoded = json_decode(imap_base64($query_var), true);
+    }
     $dataOpts = get_option(MYSITEAPP_OPTIONS_DATA, array());
     $signKey = 1;
     $signVal = get_bloginfo('pingback_url');
@@ -603,17 +646,22 @@ function uppsite_push_control_enabled() {
     return isset($options['push_control']) && $options['push_control'] == '1';
 }
 function mysiteapp_send_push($post_id, $post_details = NULL) {
-    if (!uppsite_api_values_set() ||
-        uppsite_push_control_enabled() && !isset($_POST['send_push'])) {
+    if (!uppsite_api_values_set()) {
                 return;
     }
     if (is_null($post_details)) {
                 $post_details = get_post($post_id, ARRAY_A);
     }
+    if (uppsite_push_control_enabled() && !isset($_POST['send_push'])) {
+                $postMeta = get_post_meta($post_id, '_uppsite_push', true);
+        if ( "1" != $postMeta ) {
+                        return;
+        }
+    }
     $dataOpts = get_option(MYSITEAPP_OPTIONS_DATA);
     $json_str = json_encode(array(
         'title' => $post_details['post_title'],
-        'post_id' => $post_details['ID'],
+        'post_id' => $post_id,
         'utime' => mysiteapp_convert_datetime($post_details['post_date']),
         'api_key' => $dataOpts['uppsite_key']
     ));
@@ -629,12 +677,23 @@ function mysiteapp_new_post_push($post_id) {
     }
 }
 function mysiteapp_future_post_push($post_id) {
-    $post_details = get_post($post_id, ARRAY_A);
-    if ($post_details['post_status'] != 'publish') { return; }
-    if (!$_POST &&
-        false == (isset($post_details['sticky']) && $post_details['sticky'] == 'sticky')) {
-                mysiteapp_send_push($post_id, $post_details);
+    $post = get_post($post_id, ARRAY_A);
+    if ( empty($post) ) {
+        return;
     }
+    if ( 'publish' != $post['post_status'] ) {
+        return;
+    }
+    if ( isset($post['sticky']) || $post['sticky'] == "sticky" ) {
+        return;
+    }
+        mysiteapp_send_push($post_id, $post);
+}
+function mysiteapp_set_push_status( $post_ID , $post ) {
+    if (!uppsite_push_control_enabled() || defined('DOING_CRON')) {
+        return;
+    }
+    update_post_meta($post_ID, '_uppsite_push', isset($_POST['send_push']) ? "1" : "0");
 }
 function mysiteapp_append_native_link() {
     global $msap, $wp;
@@ -732,9 +791,9 @@ function uppsite_filter_show_on_front($val) {
     return $msap->has_custom_theme() && mysiteapp_get_prefs_value('always_show_posts', false) ? 'posts' : $val;
 }
 function uppsite_ajax_verify_nonce() {
-    $nonce = isset($_REQUEST['nonce_name']) ? $_REQUEST['nonce_name'] : null;
-    $token = isset($_REQUEST['token']) ? $_REQUEST['token'] : null;
-    $requesterUid = isset($_REQUEST['nonce_requester']) && is_numeric($_REQUEST['nonce_requester']) ? $_REQUEST['nonce_requester'] : null;
+    $nonce = isset($_REQUEST['msa_nonce_name']) ? $_REQUEST['msa_nonce_name'] : null;
+    $token = isset($_REQUEST['msa_token']) ? $_REQUEST['msa_token'] : null;
+    $requesterUid = isset($_REQUEST['msa_nonce_behalf']) && is_numeric($_REQUEST['msa_nonce_behalf']) ? $_REQUEST['msa_nonce_behalf'] : null;
     if (empty($nonce) || empty($token) || empty($requesterUid) ||
         strpos($nonce, UPPSITE_NONCE_PREFIX) === false) {
         return;
@@ -756,8 +815,9 @@ add_action('wp', 'mysiteapp_set_webapp_theme');
 add_action('init', 'uppsite_remote_activation');
 add_action('publish_post', 'mysiteapp_new_post_push', 10, 1);
 add_action('publish_future_post', 'mysiteapp_future_post_push', 10, 1);
+add_filter('wp_insert_post', 'mysiteapp_set_push_status', 99, 2);
 add_action('wp_head', 'mysiteapp_append_native_link');
-add_action('pre_get_posts', 'uppsite_pre_get_posts');
+add_action('pre_get_posts', 'uppsite_pre_get_posts', 99999); 
 add_filter('option_show_on_front', 'uppsite_filter_show_on_front');
-add_action('wp_ajax_nopriv_uppsite_verify_nonce', 'uppsite_ajax_verify_nonce');
+add_action('init', 'uppsite_ajax_verify_nonce');
 endif; 

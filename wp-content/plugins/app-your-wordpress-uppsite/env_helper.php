@@ -6,8 +6,8 @@ function uppsite_remote_get_platform() {
     return uppsite_is_wpcom_vip() ? 3 : 1;
 }
 function mysiteapp_get_relative_path($from, $to) {
-    $from     = explode('/', $from);
-    $to       = explode('/', $to);
+    $from     = explode(DIRECTORY_SEPARATOR, $from);
+    $to       = explode(DIRECTORY_SEPARATOR, $to);
     $relPath  = $to;
     foreach($from as $depth => $dir) {
                 if($dir === $to[$depth]) {
@@ -19,14 +19,18 @@ function mysiteapp_get_relative_path($from, $to) {
                 $relPath = array_pad($relPath, $padLength, '..');
                 break;
             } else {
-                $relPath[0] = './' . $relPath[0];
+                $relPath[0] = '.' . DIRECTORY_SEPARATOR . $relPath[0];
             }
         }
     }
-    return implode('/', $relPath);
+    return implode(DIRECTORY_SEPARATOR, $relPath);
 }
 function mysiteapp_get_template_root() {
-    return mysiteapp_get_relative_path(get_theme_root() . "/", dirname(__FILE__) . "/themes");
+        $fixedThemeDir = str_replace("/", DIRECTORY_SEPARATOR, get_theme_root()) . DIRECTORY_SEPARATOR;
+    return mysiteapp_get_relative_path($fixedThemeDir, dirname(__FILE__) . DIRECTORY_SEPARATOR . "themes");
+}
+function uppsite_get_template_directory_uri() {
+    return str_replace(DIRECTORY_SEPARATOR, "/", get_template_directory_uri());
 }
 function uppsite_change_webapp($state) {
     $myOpts = get_option(MYSITEAPP_OPTIONS_DATA);
@@ -125,7 +129,7 @@ function uppsite_cache_fix_wp_super_cache($userAgents, $add = true) {
 function uppsite_cache_fix_w3_total_cache($userAgents, $add = true) {
     if (class_exists('W3_Plugin_TotalCacheAdmin') &&
         (!isset($_REQUEST['page']) || stristr($_REQUEST['page'], "w3tc_") === false)) {
-                $w3_config = & w3_instance('W3_Config');
+                $w3_config = w3_instance('W3_Config');
         $w3_total_cache_plugins = array('PgCache', 'Minify', 'Cdn');
         $save = array();
         foreach ($w3_total_cache_plugins as $w3tc_plugin) {
@@ -154,7 +158,7 @@ function uppsite_cache_fix_w3_total_cache($userAgents, $add = true) {
         if (count($save) > 0) {
             $w3_config->save(false);
             foreach ($save as $plugin) {
-                $w3tc_admin_instance = & w3_instance('W3_Plugin_' . $plugin . 'Admin');
+                $w3tc_admin_instance = w3_instance('W3_Plugin_' . $plugin . 'Admin');
                 if (!is_null($w3tc_admin_instance)) {
                     if (method_exists($w3tc_admin_instance, 'write_rules_core')) {
                         $w3tc_admin_instance->write_rules_core();
@@ -163,6 +167,10 @@ function uppsite_cache_fix_w3_total_cache($userAgents, $add = true) {
                         $w3tc_admin_instance->write_rules_cache();
                     }
                 }
+            }
+            $environment = w3_instance('W3_AdminEnvironment');
+            if (!is_null($environment)) {
+                $environment->fix_in_wpadmin($w3_config);
             }
         }
     }

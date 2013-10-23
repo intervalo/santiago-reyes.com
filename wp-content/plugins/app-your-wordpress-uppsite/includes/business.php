@@ -27,8 +27,7 @@ class UppSiteBusinessDataMiner {
         $bizInfo['contact_address'] = $this->current_info['address'];
         $bizInfo['contact_address_vcf'] = isset($this->current_info['address_vcf']) ? $this->current_info['address_vcf'] : '';
         $bizInfo['email'] = $this->current_info['email'] ? $this->current_info['email'] : get_bloginfo('admin_email');
-        $bizInfo['featured'] = $this->get_images_from_homepage();
-        $bizInfo['all_images'] = $this->get_site_images();
+        $this->scan_site_images($bizInfo);
         $share_arr = $this->_get_share_links();
         $bizInfo['facebook'] = $share_arr['facebook'];
         $bizInfo['twitter'] = $share_arr['twitter'];
@@ -43,6 +42,10 @@ class UppSiteBusinessDataMiner {
             $bizInfo['menu_pages'] = array_map(create_function('$page', 'return $page->ID;'), $pages);
         }
         update_option(MYSITEAPP_OPTIONS_BUSINESS, $bizInfo);
+    }
+    public function scan_site_images(&$bizInfo) {
+        $bizInfo['featured'] = $this->get_images_from_homepage();
+        $bizInfo['all_images'] = $this->get_site_images();
     }
     private function _get_from_content($part, $content) {
         if (!array_key_exists($part, $this->regexes)) { return null; }
@@ -148,7 +151,7 @@ class UppSiteBusinessDataMiner {
         }
     }
     private function _find_images($content) {
-        return preg_match_all('/<img[^>]*src=["\'](.+?)["\']/i', $content, $matches) > 0 ?
+        return preg_match_all('/<img[^>]*src=["\'](((?!gravatar\.com).)+?)["\']/i', $content, $matches) > 0 ?
             $matches[1] : array();
     }
     function get_site_images() {
@@ -156,7 +159,7 @@ class UppSiteBusinessDataMiner {
                 if ($frontPage = $this->get_front_page()) {
             $all_images = array_merge($all_images, $this->_find_images( $frontPage ));
         }
-                $all_pages = get_pages();
+                $all_pages = get_pages( array( 'sort_column' => 'post_date', 'sort_order' => 'DESC' ) );
         foreach ($all_pages as $page) {
             $all_images = array_merge($all_images, $this->_find_images( $page->post_content ));
         }
@@ -180,21 +183,42 @@ function uppsite_miner_run($arg = null) {
     if (!is_null($uppsiteMiner)) { return; } 
     $force = !is_null($arg) && is_float($arg) && $arg < 5;
     $force |= isset($_REQUEST['uppsite_miner']);
-    $bizOptions = get_option(MYSITEAPP_OPTIONS_BUSINESS);
+    $bizOptions = get_option(MYSITEAPP_OPTIONS_BUSINESS, array());
     $shouldRun = empty($bizOptions) || count($bizOptions) == 0; 
     $shouldntRun = isset($_REQUEST['uppsite_is_miner']);
     if (!$shouldntRun && ($force || $shouldRun)) {
         $uppsiteMiner = new UppSiteBusinessDataMiner();
         $uppsiteMiner->build_site_info($force);
     }
+    else if(isset($_REQUEST['uppsite_images_rescan'])){
+        $uppsiteMiner = new UppSiteBusinessDataMiner();
+        $uppsiteMiner->scan_site_images($bizOptions);
+        update_option(MYSITEAPP_OPTIONS_BUSINESS, $bizOptions);
+    }
 }
 add_action( 'after_setup_theme', 'uppsite_miner_run' ); add_action( 'uppsite_is_activated', 'uppsite_miner_run' ); add_action( 'uppsite_has_upgraded', 'uppsite_miner_run', 1, 1 ); 
+function uppsite_get_all_media_images($page) {
+    $args = array(
+        'post_type' => 'attachment',
+        'posts_per_page' => IMAGES_PER_PAGE / 2,
+        'post_mime_type' => 'image',
+        'post_parent' => null,
+        'offset' => $page * ( IMAGES_PER_PAGE / 2 )
+    );
+    $attachments = get_posts( $args );
+    $images = array();
+    foreach ( $attachments as $attachment ) {
+        $images[] = $attachment->guid;
+    }
+    return $images;
+}
 function uppsite_get_bizimages() {
     $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 0;
     $image_ar = array_unique(mysiteapp_get_options_value(MYSITEAPP_OPTIONS_BUSINESS, 'all_images', array()), SORT_STRING);
     $selectedImages = mysiteapp_get_options_value(MYSITEAPP_OPTIONS_BUSINESS, 'selected_images', array());
     $featuredImages = mysiteapp_get_options_value(MYSITEAPP_OPTIONS_BUSINESS, 'featured', array());
-    $current_page_ar = array_slice($image_ar, $page * IMAGES_PER_PAGE, IMAGES_PER_PAGE);
+    $current_page_ar = array_slice($image_ar, $page * (IMAGES_PER_PAGE / 2), IMAGES_PER_PAGE / 2);
+    $current_page_ar = array_merge(uppsite_get_all_media_images($page), $current_page_ar);
     $images_list = array();
     foreach ($current_page_ar as $image) {
         $found_in = array();
@@ -269,7 +293,7 @@ function uppsite_get_bloginfo() {
     );
 }
 function uppsite_ajax_get_info() {
-    $req = sanitize_text_field($_REQUEST['uppsite_request']);
+    $req = sanitize_text_field($_REQUEST['uppsite_req']);
     $allowedRequests = array(
         'bloginfo',
         'bizinfo',
