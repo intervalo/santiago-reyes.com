@@ -6,6 +6,6 @@ Archive Template: Text archive
 
 <?php get_header(); ?>
 			
-	<?php get_template_part('tmpl_text.php'); ?>
+			<?php locate_template( array( 'tmpl_text.php'), true, true ) ?>
 				
 <?php get_footer(); ?>
