@@ -100,6 +100,12 @@ body { background: white; color: #000; font-size: 13px; margin-top: 0; font-fami
 			.wpscls-copyright {padding: 0px 6px;}
 			.wpscls-copyright a {}
 			.wpscls-copyright a:hover {}
+
+			.resize-images img {
+				max-width: 100%;
+				height: auto;
+			}
+			
 			/* KCML */
 .kc-ml-languages {
 list-style-type: none;
