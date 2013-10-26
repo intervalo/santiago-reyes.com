@@ -22,9 +22,20 @@
 							'pad_counts'               => false,
 							'exclude'				   => 1
 						);
+
+						$arrArgsText = array(
+							'type'                     => 'post',
+							'child_of'                 => 0,
+							'orderby'                  => 'count',
+							'order'                    => 'DESC',
+							'taxonomy'                 => 'category',
+							'pad_counts'               => false,
+							'include'				   => 1
+						);
 							
-						$rows_cate	=	get_categories($arrArgs);
-						$strResult	=	'';
+						$rows_cate  =	get_categories($arrArgs);
+						$text_cate	=	get_categories($arrArgsText);
+						$strResult	    =	'';
 						foreach($rows_cate as $numKey	=>	$row_cate) {
 							$strResult	.=	'<h4>'.$row_cate->cat_name.'</h4>';
 							
@@ -51,6 +62,11 @@
 								$strResult	.=	'</ul>';
 							}
 						}
+
+						foreach($text_cate as $numKey	=>	$row_cate) {
+							$strResult	.=	'<h4><a href="'.get_category_link( $row_cate->term_id ).'">'.$row_cate->cat_name.'</a></h4>';
+						}
+
 						echo $strResult;
 						?>
 						<div class="clr"></div>
