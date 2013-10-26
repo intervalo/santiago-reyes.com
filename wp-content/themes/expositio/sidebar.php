@@ -19,7 +19,8 @@
 							'orderby'                  => 'count',
 							'order'                    => 'DESC',
 							'taxonomy'                 => 'category',
-							'pad_counts'               => false 
+							'pad_counts'               => false,
+							'exclude'				   => 1
 						);
 							
 						$rows_cate	=	get_categories($arrArgs);
