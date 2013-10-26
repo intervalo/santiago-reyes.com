@@ -109,6 +109,20 @@ body { background: white; color: #000; font-size: 13px; margin-top: 0; font-fami
 			.more-link {
 				font-weight: bold;
 			}
+
+			.wp-pagenavi-container {
+				margin-bottom: 3em;
+			}
+
+				.wp-pagenavi a ,
+				.wp-pagenavi span {
+					display: inline-block;
+					padding: 0 2px;
+				}
+				
+				.wp-pagenavi .current {
+					font-weight: bold;
+				}
 			/* KCML */
 .kc-ml-languages {
 list-style-type: none;
