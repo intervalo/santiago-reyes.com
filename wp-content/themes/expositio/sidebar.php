@@ -37,7 +37,11 @@
 						$text_cate	=	get_categories($arrArgsText);
 						$strResult	    =	'';
 						foreach($rows_cate as $numKey	=>	$row_cate) {
-							$strResult	.=	'<h4>'.$row_cate->cat_name.'</h4>';
+							$catClass = '';
+							if( get_query_var('cat') == $row_cate->term_id ){
+								$catClass = 'current';
+							}
+							$strResult	.=	'<h4 class="'.$catClass.'">'.$row_cate->cat_name.'</h4>';
 							
 							$arrArgs = array(
 								'cat'                    	=> $row_cate->cat_ID,
@@ -64,7 +68,11 @@
 						}
 
 						foreach($text_cate as $numKey	=>	$row_cate) {
-							$strResult	.=	'<h4><a href="'.get_category_link( $row_cate->term_id ).'">'.$row_cate->cat_name.'</a></h4>';
+							if( get_query_var('cat') == $row_cate->term_id ){
+								$catClass = 'current';
+							}
+
+							$strResult	.=	'<h4 class="'.$catClass.'"><a href="'.get_category_link( $row_cate->term_id ).'">'.$row_cate->cat_name.'</a></h4>';
 						}
 
 						echo $strResult;
